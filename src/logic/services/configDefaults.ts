@@ -1,0 +1,37 @@
+import type { StartkitConfig } from '@/domain/config';
+
+export const DEFAULT_CONFIG: StartkitConfig = {
+  microserviceName: 'ms-commande',
+  groupId: 'fr.assia',
+  version: '0.1.0-SNAPSHOT',
+  rootPackage: 'fr.assia.commande',
+  artifactId: 'ms-commande',
+  javaVersion: 17,
+  diFramework: 'spring',
+  modules: {
+    coverage: true,
+    postgresProvider: false,
+    externalApiProvider: false,
+    externalApiName: ''
+  },
+  domain: {
+    aggregates: [
+      {
+        name: 'adresse',
+        fields: [
+          { name: 'id', type: 'UUID', constraints: ['not null'] },
+          { name: 'rue', type: 'BigDecimal', constraints: ['min:0'] },
+          { name: 'complementAdresse', type: 'Instant', constraints: ['not null'] }
+        ],
+        useCases: ['Sauvegarder', 'RechercherParId', 'Lister']
+      }
+    ]
+  },
+  springProfiles: ['dev', 'prod'],
+  serverPort: 8080,
+  docker: {
+    baseImage: 'azul/openjdk:17-jdk',
+    portMapping: '8080:8080',
+    startCommand: 'java -jar app.jar'
+  }
+};

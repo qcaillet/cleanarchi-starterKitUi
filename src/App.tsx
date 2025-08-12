@@ -1,34 +1,47 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
+import { BrowserRouter, Route, Routes } from 'react-router-dom'
 import './App.css'
+import { TooltipProvider } from './components/ui/tooltip'
+import { Toaster } from "@/components/ui/sonner"
+import { SidebarProvider, SidebarTrigger } from './components/ui/sidebar'
+import { AppSidebar } from './components/internal/AppSidebar'
+import DashboardPage from './pages/DashboardPage'
+import GeneratorPage from './pages/GeneratorPage'
+import MicroservicesPage from './pages/MicroservicesPage'
+import ConfigPage from './pages/ConfigPage'
+import NotFound from './pages/NotFound'
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+
+const queryClient = new QueryClient();
+
 
 function App() {
-  const [count, setCount] = useState(0)
-
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
+    <QueryClientProvider client={queryClient}>
+    <TooltipProvider>
+    <Toaster />
+    <BrowserRouter>
+        <SidebarProvider>
+          <div className="flex min-h-screen w-full">
+            <AppSidebar />
+            <div className="flex-1 flex flex-col">
+              <header className="h-12 flex items-center border-b bg-background">
+                <SidebarTrigger className="ml-2" />
+              </header>
+              <main className="flex-1">
+                <Routes>
+                  <Route path="/" element={<DashboardPage />} />
+                  <Route path="/generator" element={<GeneratorPage />} />
+                  <Route path="/microservices" element={<MicroservicesPage />} />
+                  <Route path="/config" element={<ConfigPage />} />
+                  <Route path="*" element={<NotFound />} />
+                </Routes>
+              </main>
+            </div>
+          </div>
+        </SidebarProvider>
+      </BrowserRouter>
+    </TooltipProvider>
+  </QueryClientProvider>
   )
 }
 
