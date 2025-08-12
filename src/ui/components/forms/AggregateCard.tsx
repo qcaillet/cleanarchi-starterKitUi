@@ -8,7 +8,7 @@ import { FieldsImport } from './FieldsImport';
 import { AggregateNameInput } from './AggregateNameInput';
 import { AggregateFormActions } from './AggregateFormActions';
 import { AggregateTextAreas } from './AggregateTextAreas';
-import { Plus, FileJson } from 'lucide-react';
+import { Plus, FileJson, Trash2 } from 'lucide-react';
 import type { Aggregate, Field } from '@/domain/config';
 
 interface AggregateCardProps {
@@ -43,11 +43,21 @@ export const AggregateCard: React.FC<AggregateCardProps> = ({
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="flex items-center gap-2">
+        <CardTitle className="flex items-center justify-between">
           <AggregateNameInput
             value={aggregate.name}
             onChange={(value) => onUpdateAggregate(aggregateIndex, 'name', value)}
           />
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={() => onRemoveAggregate(aggregateIndex)}
+            className="flex items-center gap-2 text-destructive hover:text-destructive-foreground hover:bg-destructive"
+          >
+            <Trash2 className="w-4 h-4" />
+            Supprimer
+          </Button>
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-6">

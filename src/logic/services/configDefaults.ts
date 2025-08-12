@@ -30,8 +30,10 @@ export const DEFAULT_CONFIG: StartkitConfig = {
   springProfiles: ['dev', 'prod'],
   serverPort: 8080,
   docker: {
-    baseImage: 'azul/openjdk:17-jdk',
-    portMapping: '8080:8080',
-    startCommand: 'java -jar app.jar'
+    appPort: 8080,
+    enableDebug: false,
+    debugPort: 5005,
+    imageName: 'mon-app:java17',
+    jarPattern: 'target/*.jar'
   }
 };

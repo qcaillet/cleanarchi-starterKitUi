@@ -10,4 +10,4 @@ export interface GeneralConfig {
   description: string;
 }
 
-export type JavaVersion = 11 | 17 | 21;
+export type JavaVersion = 17 | 21;

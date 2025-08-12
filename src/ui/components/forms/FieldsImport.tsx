@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
-import { FileText, Upload, RefreshCw } from 'lucide-react';
 import type { Field } from '@/domain/config';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 
@@ -40,23 +39,6 @@ export const FieldsImport: React.FC<FieldsImportProps> = ({ onImportFields, curr
     };
   }, [debounceTimer]);
 
-  const exampleJson = `[
-  {
-    "name": "id",
-    "type": "Long",
-    "constraints": ["primary key", "auto increment"]
-  },
-  {
-    "name": "email",
-    "type": "String",
-    "constraints": ["not null", "unique"]
-  },
-  {
-    "name": "name",
-    "type": "String",
-    "constraints": ["not null"]
-  }
-]`;
 
   const validateAndParseFields = (jsonString: string): Field[] | null => {
     try {
@@ -162,54 +144,12 @@ export const FieldsImport: React.FC<FieldsImportProps> = ({ onImportFields, curr
     setDebounceTimer(timeoutId);
   };
 
-  const loadExample = () => {
-    setJsonInput(exampleJson);
-    setError(null);
-    // Applique automatiquement l'exemple
-    setIsUpdatingFromFields(true);
-    const fields = validateAndParseFields(exampleJson);
-    if (fields) {
-      try {
-        onImportFields(fields);
-      } catch (err) {
-        setError(err instanceof Error ? err.message : 'Erreur lors de l\'application de l\'exemple');
-      }
-    }
-    setIsUpdatingFromFields(false);
-  };
 
-  const resetToCurrentFields = () => {
-    const currentJson = JSON.stringify(currentFields, null, 2);
-    setJsonInput(currentJson);
-    setError(null);
-  };
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
+      <div>
         <Label className="text-base font-medium">Importer des champs depuis JSON</Label>
-        <div className="flex gap-2">
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            onClick={resetToCurrentFields}
-            className="flex items-center gap-2"
-          >
-            <RefreshCw className="w-4 h-4" />
-            Actualiser
-          </Button>
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            onClick={loadExample}
-            className="flex items-center gap-2"
-          >
-            <FileText className="w-4 h-4" />
-            Exemple
-          </Button>
-        </div>
       </div>
       
       <Textarea

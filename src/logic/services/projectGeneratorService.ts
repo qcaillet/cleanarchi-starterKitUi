@@ -15,6 +15,15 @@ interface ProjectGenerationRequest {
   hasRestService: boolean;
   restServiceName?: string;
   agregats: AgregatRequest[];
+  dockerConfig: DockerConfigRequest;
+}
+
+interface DockerConfigRequest {
+  appPort: number;
+  enableDebug: boolean;
+  debugPort: number;
+  imageName: string;
+  jarPattern: string;
 }
 
 interface AgregatRequest {
@@ -88,6 +97,15 @@ export class ProjectGeneratorService {
       useCases: transformUseCases(aggregate.useCases)
     }));
 
+    // Configuration Docker avec valeurs par défaut
+    const dockerConfig: DockerConfigRequest = {
+      appPort: config.docker?.appPort || config.serverPort || 8080,
+      enableDebug: config.docker?.enableDebug || false,
+      debugPort: config.docker?.debugPort || 5005,
+      imageName: config.docker?.imageName || `${config.microserviceName}:java${javaVersion}`,
+      jarPattern: config.docker?.jarPattern || 'target/*.jar'
+    };
+
     return {
       projectName,
       projectVersion,
@@ -101,7 +119,8 @@ export class ProjectGeneratorService {
       hasPostgres,
       hasRestService,
       restServiceName,
-      agregats
+      agregats,
+      dockerConfig
     };
   }
 

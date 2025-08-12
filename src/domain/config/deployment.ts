@@ -1,5 +1,8 @@
 export interface DockerConfig {
-  baseImage: string;
-  portMapping: string;
-  startCommand: string;
+  // Basique
+  appPort: number;
+  enableDebug: boolean;
+  debugPort: number;
+  imageName: string;
+  jarPattern: string;
 }

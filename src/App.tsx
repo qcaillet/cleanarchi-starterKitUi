@@ -4,7 +4,6 @@ import { TooltipProvider } from './components/ui/tooltip'
 import { Toaster } from "@/components/ui/sonner"
 import { SidebarProvider, SidebarTrigger } from './components/ui/sidebar'
 import { AppSidebar } from './components/internal/AppSidebar'
-import DashboardPage from './pages/DashboardPage'
 import GeneratorPage from './pages/GeneratorPage'
 import MicroservicesPage from './pages/MicroservicesPage'
 import ConfigPage from './pages/ConfigPage'
@@ -29,7 +28,7 @@ function App() {
               </header>
               <main className="flex-1">
                 <Routes>
-                  <Route path="/" element={<DashboardPage />} />
+                  <Route path="/" element={<GeneratorPage />} />
                   <Route path="/generator" element={<GeneratorPage />} />
                   <Route path="/microservices" element={<MicroservicesPage />} />
                   <Route path="/config" element={<ConfigPage />} />

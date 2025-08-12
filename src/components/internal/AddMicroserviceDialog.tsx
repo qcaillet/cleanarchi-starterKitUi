@@ -184,7 +184,6 @@ export function AddMicroserviceDialog({ open, onOpenChange, onAdd }: AddMicroser
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="11">Java 11</SelectItem>
                       <SelectItem value="17">Java 17</SelectItem>
                       <SelectItem value="21">Java 21</SelectItem>
                     </SelectContent>

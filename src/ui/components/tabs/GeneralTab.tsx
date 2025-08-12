@@ -10,7 +10,7 @@ interface GeneralTabProps {
   onUpdateConfig: (path: string, value: unknown) => void;
 }
 
-const javaVersions: JavaVersion[] = [11, 17, 21];
+const javaVersions: JavaVersion[] = [17, 21];
 
 export const GeneralTab: React.FC<GeneralTabProps> = ({ config, onUpdateConfig }) => {
   return (

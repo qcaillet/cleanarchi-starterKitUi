@@ -5,8 +5,8 @@ export const generalConfigSchema = z.object({
   groupId: z.string().min(1, 'Le group ID est requis'),
   version: z.string().min(1, 'La version est requise'),
   artifactId: z.string().min(1, 'L\'artifact ID est requis'),
-  javaVersion: z.number().refine((val) => [11, 17, 21].includes(val), {
-    message: 'Version Java doit être 11, 17 ou 21'
+  javaVersion: z.number().refine((val) => [17, 21].includes(val), {
+    message: 'Version Java doit être 17 ou 21'
   }),
   diFramework: z.string().default('spring'),
   springProfiles: z.array(z.string()).min(1, 'Au moins un profil Spring est requis'),
