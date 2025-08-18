@@ -11,6 +11,7 @@ interface DomainTabProps {
   onRemoveAggregate: (index: number) => void;
   onAddField: (aggregateIndex: number) => void;
   onRemoveField: (aggregateIndex: number, fieldIndex: number) => void;
+  onImportNewEntities?: (entities: any[]) => void;
 }
 
 export const DomainTab: React.FC<DomainTabProps> = ({
@@ -19,7 +20,8 @@ export const DomainTab: React.FC<DomainTabProps> = ({
   onAddAggregate,
   onRemoveAggregate,
   onAddField,
-  onRemoveField
+  onRemoveField,
+  onImportNewEntities
 }) => {
   const handleUpdateAggregate = (index: number, field: string, value: unknown) => {
     onUpdateConfig(`domain.aggregates.${index}.${field}`, value);
@@ -54,6 +56,7 @@ export const DomainTab: React.FC<DomainTabProps> = ({
           onAddField={onAddField}
           onUpdateField={handleUpdateField}
           onRemoveField={onRemoveField}
+          onImportNewEntities={onImportNewEntities}
         />
       ))}
     </div>

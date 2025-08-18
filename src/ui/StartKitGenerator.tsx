@@ -1,7 +1,7 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { RotateCcw, Rocket, AlertCircle } from 'lucide-react';
+import { RotateCcw, Download, AlertCircle } from 'lucide-react';
 import { useStartkitConfig } from '@/logic/useStartkitConfig';
 import { useProjectGenerator } from '@/logic/hooks/useProjectGenerator';
 import { GeneralTab } from './components/tabs/GeneralTab';
@@ -19,7 +19,9 @@ const StartKitGenerator: React.FC = () => {
     removeField,
     addSpringProfile,
     removeSpringProfile,
-    resetConfig
+    resetConfig,
+    parsedEntities,
+    updateParsedEntities
   } = useStartkitConfig();
 
   const { isGenerating, error, generateProject, clearError } = useProjectGenerator();
@@ -28,7 +30,7 @@ const StartKitGenerator: React.FC = () => {
   const handleGenerateProject = async () => {
     try {
       clearError();
-      await generateProject(config);
+      await generateProject(config, parsedEntities);
     } catch (err) {
       // L'erreur est déjà gérée dans le hook
       console.error('Erreur lors de la génération:', err);
@@ -74,6 +76,7 @@ const StartKitGenerator: React.FC = () => {
               onRemoveAggregate={removeAggregate}
               onAddField={addField}
               onRemoveField={removeField}
+              onImportNewEntities={updateParsedEntities}
             />
           </TabsContent>
 
@@ -97,7 +100,7 @@ const StartKitGenerator: React.FC = () => {
           <Button 
             onClick={handleGenerateProject}
             disabled={isGenerating}
-            className="flex items-center gap-2 bg-green-600 hover:bg-green-700"
+            className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700"
           >
             {isGenerating ? (
               <>
@@ -106,8 +109,8 @@ const StartKitGenerator: React.FC = () => {
               </>
             ) : (
               <>
-                <Rocket className="w-4 h-4" />
-                Générer Projet
+                <Download className="w-4 h-4" />
+                Télécharger
               </>
             )}
           </Button>

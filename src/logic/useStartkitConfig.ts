@@ -1,6 +1,27 @@
 import { useState } from 'react';
 import type { StartkitConfig, Field, Aggregate } from '@/domain/types';
 
+// Nouvelle structure d'entité
+interface NewEntityStructure {
+  class: string;
+  aggregate_root?: boolean;
+  fields: {
+    name: string;
+    type: string;
+    constraints?: string[];
+  }[];
+  relations?: {
+    name: string;
+    target: string;
+    cardinality: 'ONE' | 'MANY';
+    owner: boolean;
+    fk_name: string;
+    nullable?: boolean;
+    collection_type?: string;
+    id_type: string;
+  }[];
+}
+
 const DEFAULT_CONFIG: StartkitConfig = {
   microserviceName: 'ms-adresse-core',
   groupId: 'fr.assia.adresse',
@@ -39,6 +60,9 @@ export const useStartkitConfig = () => {
   const [config, setConfig] = useState<StartkitConfig>(() => {
     return { ...DEFAULT_CONFIG };
   });
+  
+  // État pour les entités avec la nouvelle structure
+  const [parsedEntities, setParsedEntities] = useState<NewEntityStructure[]>([]);
 
   const updateConfig = (path: string, value: any) => {
     setConfig(prev => {
@@ -120,6 +144,12 @@ export const useStartkitConfig = () => {
     const cleanConfig = structuredClone(DEFAULT_CONFIG);
     console.log('✅ Nouvelle configuration:', cleanConfig);
     setConfig(cleanConfig);
+    setParsedEntities([]); // Reset aussi les entités parsées
+  };
+
+  const updateParsedEntities = (entities: NewEntityStructure[]) => {
+    setParsedEntities(entities);
+    console.log('🎯 Nouvelles entités parsées:', entities);
   };
 
   return {
@@ -131,6 +161,9 @@ export const useStartkitConfig = () => {
     removeField,
     addSpringProfile,
     removeSpringProfile,
-    resetConfig
+    resetConfig,
+    // Nouvelles fonctions pour les entités
+    parsedEntities,
+    updateParsedEntities
   };
 };

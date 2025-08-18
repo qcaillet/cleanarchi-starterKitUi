@@ -2,10 +2,31 @@ import { useState } from 'react';
 import { projectGeneratorService } from '@/logic/services/projectGeneratorService';
 import type { StartkitConfig } from '@/domain/config';
 
+// Interface pour la nouvelle structure d'entité
+interface NewEntityStructure {
+  class: string;
+  aggregate_root?: boolean;
+  fields: {
+    name: string;
+    type: string;
+    constraints?: string[];
+  }[];
+  relations?: {
+    name: string;
+    target: string;
+    cardinality: 'ONE' | 'MANY';
+    owner: boolean;
+    fk_name: string;
+    nullable?: boolean;
+    collection_type?: string;
+    id_type: string;
+  }[];
+}
+
 interface UseProjectGeneratorReturn {
   isGenerating: boolean;
   error: string | null;
-  generateProject: (config: StartkitConfig) => Promise<void>;
+  generateProject: (config: StartkitConfig, parsedEntities?: NewEntityStructure[]) => Promise<void>;
   checkApiHealth: () => Promise<boolean>;
   clearError: () => void;
 }
@@ -14,23 +35,28 @@ export const useProjectGenerator = (): UseProjectGeneratorReturn => {
   const [isGenerating, setIsGenerating] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const generateProject = async (config: StartkitConfig): Promise<void> => {
+  const generateProject = async (config: StartkitConfig, parsedEntities?: NewEntityStructure[]): Promise<void> => {
     setIsGenerating(true);
     setError(null);
 
     try {
-      // Validation basique
-      if (!config.domain.aggregates || config.domain.aggregates.length === 0) {
-        throw new Error('Au moins un agrégat est requis pour générer le projet');
-      }
-
+      // Validation basique du nom du microservice
       if (!config.microserviceName || config.microserviceName.trim() === '') {
         throw new Error('Le nom du microservice est requis');
       }
 
-
-      // Appel du service
-      await projectGeneratorService.generateAndDownloadProject(config);
+      // Si on a des entités parsées, utiliser la nouvelle structure
+      if (parsedEntities && parsedEntities.length > 0) {
+        console.log('🎯 Utilisation de la nouvelle structure d\'entités');
+        await projectGeneratorService.generateProjectWithNewStructure(config, parsedEntities);
+      } else {
+        // Sinon, utiliser l'ancienne méthode avec validation des agrégats
+        if (!config.domain.aggregates || config.domain.aggregates.length === 0) {
+          throw new Error('Au moins un agrégat est requis pour générer le projet');
+        }
+        console.log('📋 Utilisation de la structure classique');
+        await projectGeneratorService.generateAndDownloadProject(config);
+      }
       
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Erreur inconnue lors de la génération';

@@ -1,34 +1,47 @@
 import React, { useState, useEffect } from 'react';
-import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import type { Field } from '@/domain/config';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 
+// Structure des nouvelles entités
+interface NewEntityStructure {
+  class: string;
+  aggregate_root?: boolean;
+  fields: {
+    name: string;
+    type: string;
+    constraints?: string[];
+  }[];
+  relations?: {
+    name: string;
+    target: string;
+    cardinality: 'ONE' | 'MANY';
+    owner: boolean;
+    fk_name: string;
+    nullable?: boolean;
+    collection_type?: string;
+    id_type: string;
+  }[];
+}
+
 interface FieldsImportProps {
   onImportFields: (fields: Field[]) => void;
+  onImportNewEntities?: (entities: NewEntityStructure[]) => void;
   currentFields?: Field[];
 }
 
-export const FieldsImport: React.FC<FieldsImportProps> = ({ onImportFields, currentFields = [] }) => {
-  const [jsonInput, setJsonInput] = useState(() => 
-    currentFields.length > 0 ? JSON.stringify(currentFields, null, 2) : ''
-  );
+export const FieldsImport: React.FC<FieldsImportProps> = ({ 
+  onImportFields, 
+  onImportNewEntities,
+  currentFields = [] 
+}) => {
+  const [jsonInput, setJsonInput] = useState('');
   const [error, setError] = useState<string | null>(null);
-  const [isUpdatingFromFields, setIsUpdatingFromFields] = useState(false);
+  const [parsedEntities, setParsedEntities] = useState<NewEntityStructure[] | null>(null);
   const [debounceTimer, setDebounceTimer] = useState<NodeJS.Timeout | null>(null);
 
-  // Synchronise avec les champs actuels seulement si pas en train de saisir JSON
-  useEffect(() => {
-    if (isUpdatingFromFields) return;
-    
-    const currentJson = JSON.stringify(currentFields, null, 2);
-    // Ne synchronise que si on a des champs ET que le JSON actuel est différent
-    // Ou si le JSON actuel est vide et qu'on a des champs
-    if (currentFields.length > 0 && currentJson !== jsonInput) {
-      setJsonInput(currentJson);
-    }
-  }, [currentFields, isUpdatingFromFields]);
+  // Pas de synchronisation automatique - l'utilisateur saisit du JSON
 
   // Cleanup du timer au démontage
   useEffect(() => {
@@ -40,75 +53,83 @@ export const FieldsImport: React.FC<FieldsImportProps> = ({ onImportFields, curr
   }, [debounceTimer]);
 
 
-  const validateAndParseFields = (jsonString: string): Field[] | null => {
+  const validateNewStructure = (jsonString: string): { entities?: NewEntityStructure[], error?: string } => {
+    if (!jsonString.trim()) {
+      return { entities: [] };
+    }
+
     try {
       const parsed = JSON.parse(jsonString);
       
       if (!Array.isArray(parsed)) {
-        throw new Error('Le JSON doit être un tableau de champs');
+        throw new Error('Le JSON doit être un tableau d\'entités');
       }
 
-      const validTypes = ['String', 'UUID', 'BigDecimal', 'Integer', 'Long', 'Boolean', 'Instant', 'LocalDate', 'LocalDateTime'];
-      const validConstraints = ['not null', 'unique', 'primary key', 'auto increment', 'default value', 'foreign key', 'check constraint', 'index'];
+      const validTypes = ['String', 'UUID', 'BigDecimal', 'Integer', 'Long', 'Boolean', 'Instant', 'LocalDate', 'LocalDateTime', 'Date'];
+      const validCardinalities = ['ONE', 'MANY'];
 
-      return parsed.map((field, index) => {
-        if (!field.name || typeof field.name !== 'string') {
-          throw new Error(`Champ ${index + 1}: Le nom est requis et doit être une chaîne`);
+      const entities = parsed.map((entity, entityIndex) => {
+        // Validation de la classe
+        if (!entity.class || typeof entity.class !== 'string') {
+          throw new Error(`Entité ${entityIndex + 1}: Le champ 'class' est requis`);
         }
 
-        if (!field.type || !validTypes.includes(field.type)) {
-          throw new Error(`Champ ${index + 1}: Type invalide. Types valides: ${validTypes.join(', ')}`);
+        // Validation des champs
+        if (!Array.isArray(entity.fields)) {
+          throw new Error(`Entité ${entityIndex + 1}: Le champ 'fields' doit être un tableau`);
         }
 
-        const constraints = field.constraints || [];
-        if (!Array.isArray(constraints)) {
-          throw new Error(`Champ ${index + 1}: Les contraintes doivent être un tableau`);
-        }
-
-        for (const constraint of constraints) {
-          if (!validConstraints.includes(constraint)) {
-            throw new Error(`Champ ${index + 1}: Contrainte invalide "${constraint}". Contraintes valides: ${validConstraints.join(', ')}`);
+        const validatedFields = entity.fields.map((field: any, fieldIndex: number) => {
+          if (!field.name || typeof field.name !== 'string') {
+            throw new Error(`Entité ${entityIndex + 1}, Champ ${fieldIndex + 1}: Le nom est requis`);
           }
+
+          if (!field.type || !validTypes.includes(field.type)) {
+            throw new Error(`Entité ${entityIndex + 1}, Champ ${fieldIndex + 1}: Type invalide. Types valides: ${validTypes.join(', ')}`);
+          }
+
+          return {
+            name: field.name,
+            type: field.type,
+            constraints: field.constraints || []
+          };
+        });
+
+        // Validation des relations (optionnel)
+        let validatedRelations: any[] = [];
+        if (entity.relations && Array.isArray(entity.relations)) {
+          validatedRelations = entity.relations.map((relation: any, relIndex: number) => {
+            if (!relation.name || typeof relation.name !== 'string') {
+              throw new Error(`Entité ${entityIndex + 1}, Relation ${relIndex + 1}: Le nom est requis`);
+            }
+            if (!relation.target || typeof relation.target !== 'string') {
+              throw new Error(`Entité ${entityIndex + 1}, Relation ${relIndex + 1}: La cible est requise`);
+            }
+            if (!relation.cardinality || !validCardinalities.includes(relation.cardinality)) {
+              throw new Error(`Entité ${entityIndex + 1}, Relation ${relIndex + 1}: Cardinalité invalide`);
+            }
+            return relation;
+          });
         }
 
         return {
-          name: field.name,
-          type: field.type,
-          constraints: constraints
+          class: entity.class,
+          aggregate_root: Boolean(entity.aggregate_root),
+          fields: validatedFields,
+          relations: validatedRelations
         };
       });
+
+      return { entities };
     } catch (err) {
-      return null;
+      return { error: err instanceof Error ? err.message : 'JSON invalide' };
     }
   };
 
-  const handleImport = () => {
-    setError(null);
-    
-    if (!jsonInput.trim()) {
-      setError('Veuillez saisir du JSON');
-      return;
-    }
 
-    const fields = validateAndParseFields(jsonInput);
-    
-    if (!fields) {
-      setError('JSON invalide. Vérifiez le format.');
-      return;
-    }
-
-    try {
-      onImportFields(fields);
-      setError(null);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Erreur lors de l\'importation');
-    }
-  };
-
-  // Applique automatiquement les changements JSON valides avec debounce
+  // Valide et traite la nouvelle structure JSON avec debounce
   const handleJsonChange = (value: string) => {
     setJsonInput(value);
-    setIsUpdatingFromFields(true);
     
     // Nettoie le timer précédent
     if (debounceTimer) {
@@ -117,29 +138,40 @@ export const FieldsImport: React.FC<FieldsImportProps> = ({ onImportFields, curr
     
     if (!value.trim()) {
       setError(null);
-      setIsUpdatingFromFields(false);
+      setParsedEntities(null);
       return;
     }
 
-    // Débounce pour éviter trop d'appels
+    // Débounce pour éviter trop de validations
     const timeoutId = setTimeout(() => {
-      const fields = validateAndParseFields(value);
+      const { entities, error } = validateNewStructure(value);
       
-      if (fields) {
+      if (error) {
+        setError(error);
+        setParsedEntities(null);
+      } else if (entities) {
         setError(null);
-        // Applique automatiquement si le JSON est valide
-        try {
-          onImportFields(fields);
-        } catch (err) {
-          setError(err instanceof Error ? err.message : 'Erreur lors de l\'application automatique');
+        setParsedEntities(entities);
+        
+        // Appelle la fonction pour stocker les entités dans l'état global
+        if (onImportNewEntities) {
+          onImportNewEntities(entities);
         }
-      } else {
-        setError('JSON invalide');
+        
+        // Pour compatibilité avec l'ancien système, on extrait les champs du premier agrégat
+        const rootEntity = entities.find(e => e.aggregate_root) || entities[0];
+        if (rootEntity && onImportFields) {
+          const legacyFields: Field[] = rootEntity.fields.map(f => ({
+            name: f.name,
+            type: f.type,
+            constraints: f.constraints || []
+          }));
+          onImportFields(legacyFields);
+        }
       }
       
-      setIsUpdatingFromFields(false);
       setDebounceTimer(null);
-    }, 500); // Attendre 500ms après la dernière frappe
+    }, 800);
 
     setDebounceTimer(timeoutId);
   };
@@ -149,18 +181,99 @@ export const FieldsImport: React.FC<FieldsImportProps> = ({ onImportFields, curr
   return (
     <div className="space-y-4">
       <div>
-        <Label className="text-base font-medium">Importer des champs depuis JSON</Label>
+        <Label className="text-base font-medium">Structure JSON des entités</Label>
       </div>
       
       <Textarea
-        placeholder={currentFields.length > 0 
-          ? "Vos champs actuels (JSON synchronisé)" 
-          : "Structure JSON de vos champs apparaîtra ici automatiquement..."
-        }
+        placeholder={`Collez votre structure JSON :
+[
+  {
+    "class": "Entreprise",
+    "aggregate_root": true,
+    "fields": [
+      {"name": "id", "type": "UUID", "constraints": ["not null"]},
+      {"name": "siren", "type": "String", "constraints": ["not null"]}
+    ],
+    "relations": [
+      {
+        "name": "etablissementIds",
+        "target": "Etablissement",
+        "cardinality": "MANY",
+        "owner": true,
+        "fk_name": "entrepriseId",
+        "collection_type": "List",
+        "id_type": "UUID"
+      }
+    ]
+  }
+]`}
         value={jsonInput}
         onChange={(e) => handleJsonChange(e.target.value)}
-        className="min-h-[200px] font-mono text-sm"
+        className="min-h-[300px] font-mono text-sm"
       />
+      
+      {/* Affichage des entités parsées */}
+      {parsedEntities && parsedEntities.length > 0 && (
+        <div className="p-4 bg-muted/50 rounded-lg border border-border">
+          <div className="space-y-3">
+            <div className="text-sm font-medium text-green-700">✓ {parsedEntities.length} entité(s) validée(s)</div>
+            {parsedEntities.map((entity, index) => (
+              <div key={index} className={`p-3 rounded text-sm ${
+                entity.aggregate_root 
+                  ? 'bg-blue-50 border border-blue-200' 
+                  : 'bg-gray-50 border border-gray-200'
+              }`}>
+                <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-center gap-2">
+                    <span className="font-medium text-gray-900">{entity.class}</span>
+                    {entity.aggregate_root ? (
+                      <span className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded-full">📍 Agrégat Racine</span>
+                    ) : (
+                      <span className="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded-full">🔗 Entité</span>
+                    )}
+                  </div>
+                </div>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {/* Champs */}
+                  <div>
+                    <div className="text-xs font-medium text-gray-600 mb-1">📄 Champs ({entity.fields.length})</div>
+                    <div className="space-y-1">
+                      {entity.fields.slice(0, 3).map((field, fieldIndex) => (
+                        <div key={fieldIndex} className="text-xs text-gray-700">
+                          <span className="font-medium">{field.name}</span>
+                          <span className="text-gray-500 ml-1">({field.type})</span>
+                        </div>
+                      ))}
+                      {entity.fields.length > 3 && (
+                        <div className="text-xs text-gray-500">... et {entity.fields.length - 3} autre(s)</div>
+                      )}
+                    </div>
+                  </div>
+                  
+                  {/* Relations */}
+                  {entity.relations && entity.relations.length > 0 && (
+                    <div>
+                      <div className="text-xs font-medium text-gray-600 mb-1">🔗 Relations ({entity.relations.length})</div>
+                      <div className="space-y-1">
+                        {entity.relations.slice(0, 2).map((relation, relIndex) => (
+                          <div key={relIndex} className="text-xs text-gray-700">
+                            <span className="font-medium">{relation.name}</span>
+                            <span className="text-gray-500 ml-1">→ {relation.target} ({relation.cardinality})</span>
+                          </div>
+                        ))}
+                        {entity.relations.length > 2 && (
+                          <div className="text-xs text-gray-500">... et {entity.relations.length - 2} autre(s)</div>
+                        )}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
       
       {error && (
         <Alert variant="destructive">
