@@ -9,8 +9,8 @@ export const useConfigActions = () => {
     try {
       startkitConfigSchema.parse(config);
       return { isValid: true, errors: [] };
-    } catch (error: un) {
-      const errors = error.errors?.map((err: any) => ({
+    } catch (error: unknown) {
+      const errors = (error as { errors?: Array<{ path: string[]; message: string }> }).errors?.map((err: { path: string[]; message: string }) => ({
         path: err.path.join('.'),
         message: err.message
       })) || [];
@@ -62,7 +62,7 @@ export const useConfigActions = () => {
         title: "Configuration téléchargée",
         description: "Le fichier de configuration a été téléchargé",
       });
-    } catch (error) {
+    } catch {
       toast({
         title: "Erreur",
         description: "Impossible de télécharger la configuration",

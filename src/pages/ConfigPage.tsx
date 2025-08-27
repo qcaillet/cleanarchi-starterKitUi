@@ -4,7 +4,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Trash2, Plus, Save, Database, Server, Globe } from "lucide-react";
@@ -99,13 +98,17 @@ export default function ConfigPage() {
     );
   };
 
-  const updateDatabaseConfig = (serviceId: string, dbConfig: Partial<ServiceConfig['databaseConfig']>) => {
+  const updateDatabaseConfig = (serviceId: string, dbConfig: Partial<NonNullable<ServiceConfig['databaseConfig']>>) => {
     setServicesConfig(prev => 
       prev.map(service => 
         service.id === serviceId 
           ? { 
               ...service, 
-              databaseConfig: { ...service.databaseConfig, ...dbConfig } 
+              databaseConfig: { 
+                location: 'local' as const,
+                ...service.databaseConfig, 
+                ...dbConfig 
+              } 
             }
           : service
       )

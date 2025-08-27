@@ -11,7 +11,22 @@ interface DomainTabProps {
   onRemoveAggregate: (index: number) => void;
   onAddField: (aggregateIndex: number) => void;
   onRemoveField: (aggregateIndex: number, fieldIndex: number) => void;
-  onImportNewEntities?: (entities: any[]) => void;
+  onImportNewEntities?: (entities: {
+    class: string;
+    aggregate_root?: boolean;
+    fields: {
+      name: string;
+      type: string;
+      constraints?: string[];
+    }[];
+    relations?: {
+      name: string;
+      target: string;
+      relation: string;
+      collection_type?: string;
+      materialize: string;
+    }[];
+  }[]) => void;
 }
 
 export const DomainTab: React.FC<DomainTabProps> = ({
@@ -35,11 +50,7 @@ export const DomainTab: React.FC<DomainTabProps> = ({
 
   return (
     <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <div>
-          <h3 className="text-lg font-semibold">Agrégats du domaine</h3>
-          <p className="text-muted-foreground">Définissez les entités métier de votre microservice</p>
-        </div>
+      <div className="flex justify-end items-center">
         <Button onClick={onAddAggregate} className="flex items-center gap-2">
           <Plus className="w-4 h-4" />
           Ajouter un agrégat

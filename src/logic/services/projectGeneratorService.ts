@@ -12,12 +12,9 @@ interface NewEntityStructure {
   relations?: {
     name: string;
     target: string;
-    cardinality: 'ONE' | 'MANY';
-    owner: boolean;
-    fk_name: string;
-    nullable?: boolean;
+    relation: string;  // "one-to-many", "many-to-one", "one-to-one"
     collection_type?: string;
-    id_type: string;
+    materialize: string;  // "embed", "fk", etc.
   }[];
 }
 
@@ -51,14 +48,26 @@ interface AgregatRequest {
   agregatName: string;
   fields: FieldRequest[];
   useCases: string[];
-  relations?: any[];
+  relations?: {
+    name: string;
+    target: string;
+    relation: string;
+    collection_type?: string;
+    materialize: string;
+  }[];
   subAggregates?: SubAggregateRequest[];
 }
 
 interface SubAggregateRequest {
   agregatName: string;
   fields: FieldRequest[];
-  relations?: any[];
+  relations?: {
+    name: string;
+    target: string;
+    relation: string;
+    collection_type?: string;
+    materialize: string;
+  }[];
 }
 
 interface FieldRequest {

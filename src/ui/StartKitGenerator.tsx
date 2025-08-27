@@ -17,8 +17,6 @@ const StartKitGenerator: React.FC = () => {
     removeAggregate,
     addField,
     removeField,
-    addSpringProfile,
-    removeSpringProfile,
     resetConfig,
     parsedEntities,
     updateParsedEntities

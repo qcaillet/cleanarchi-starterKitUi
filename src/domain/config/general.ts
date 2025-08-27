@@ -2,6 +2,7 @@ export interface GeneralConfig {
   microserviceName: string;
   groupId: string;
   version: string;
+  rootPackage: string;
   artifactId: string;
   javaVersion: number;
   diFramework: string;

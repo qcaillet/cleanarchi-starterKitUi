@@ -14,12 +14,9 @@ interface NewEntityStructure {
   relations?: {
     name: string;
     target: string;
-    cardinality: 'ONE' | 'MANY';
-    owner: boolean;
-    fk_name: string;
-    nullable?: boolean;
+    relation: string;  // "one-to-many", "many-to-one", "one-to-one"
     collection_type?: string;
-    id_type: string;
+    materialize: string;  // "embed", "fk", etc.
   }[];
 }
 

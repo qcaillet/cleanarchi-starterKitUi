@@ -87,14 +87,14 @@ export function AddMicroserviceDialog({ open, onOpenChange, onAdd }: AddMicroser
     }
   };
 
-  const updateFormData = (field: keyof NewMicroservice, value: any) => {
+  const updateFormData = (field: keyof NewMicroservice, value: string | number | boolean) => {
     setFormData(prev => ({
       ...prev,
       [field]: value
     }));
     
     // Auto-generate database name based on microservice name
-    if (field === 'name' && formData.includeDatabase) {
+    if (field === 'name' && formData.includeDatabase && typeof value === 'string') {
       setFormData(prev => ({
         ...prev,
         databaseName: `db_${value.replace(/-/g, '_')}`

@@ -97,15 +97,22 @@ export default function MicroservicesPage() {
     );
   };
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const handleAddMicroservice = (newMicroserviceData: any) => {
+  const handleAddMicroservice = (newMicroserviceData: {
+    name: string;
+    description: string;
+    port: number;
+    includeDatabase: boolean;
+    databaseName: string;
+    framework: string;
+    javaVersion: string;
+  }) => {
     const newMicroservice: Microservice = {
       id: Date.now().toString(),
       name: newMicroserviceData.name,
       description: newMicroserviceData.description,
       status: 'stopped',
       port: newMicroserviceData.port,
-      debugPort: newMicroserviceData.debugPort || 5005,
+      debugPort: 5005,
       debugEnabled: false,
       lastUpdated: new Date().toISOString().split('T')[0],
       framework: newMicroserviceData.framework === 'spring-boot' ? 'Spring Boot' : newMicroserviceData.framework,

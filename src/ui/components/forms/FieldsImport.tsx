@@ -16,12 +16,9 @@ interface NewEntityStructure {
   relations?: {
     name: string;
     target: string;
-    cardinality: 'ONE' | 'MANY';
-    owner: boolean;
-    fk_name: string;
-    nullable?: boolean;
+    relation: string;  // "one-to-many", "many-to-one", "one-to-one"
     collection_type?: string;
-    id_type: string;
+    materialize: string;  // "embed", "fk", etc.
   }[];
 }
 
@@ -66,7 +63,8 @@ export const FieldsImport: React.FC<FieldsImportProps> = ({
       }
 
       const validTypes = ['String', 'UUID', 'BigDecimal', 'Integer', 'Long', 'Boolean', 'Instant', 'LocalDate', 'LocalDateTime', 'Date'];
-      const validCardinalities = ['ONE', 'MANY'];
+      const validRelations = ['one-to-many', 'many-to-one', 'one-to-one'];
+      const validMaterializations = ['embed', 'fk'];
 
       const entities = parsed.map((entity, entityIndex) => {
         // Validation de la classe
@@ -79,7 +77,7 @@ export const FieldsImport: React.FC<FieldsImportProps> = ({
           throw new Error(`Entité ${entityIndex + 1}: Le champ 'fields' doit être un tableau`);
         }
 
-        const validatedFields = entity.fields.map((field: any, fieldIndex: number) => {
+        const validatedFields = entity.fields.map((field: { name?: string; type?: string; constraints?: string[] }, fieldIndex: number) => {
           if (!field.name || typeof field.name !== 'string') {
             throw new Error(`Entité ${entityIndex + 1}, Champ ${fieldIndex + 1}: Le nom est requis`);
           }
@@ -96,17 +94,26 @@ export const FieldsImport: React.FC<FieldsImportProps> = ({
         });
 
         // Validation des relations (optionnel)
-        let validatedRelations: any[] = [];
+        let validatedRelations: {
+          name: string;
+          target: string;
+          relation: string;
+          collection_type?: string;
+          materialize: string;
+        }[] = [];
         if (entity.relations && Array.isArray(entity.relations)) {
-          validatedRelations = entity.relations.map((relation: any, relIndex: number) => {
+          validatedRelations = entity.relations.map((relation: { name?: string; target?: string; relation?: string; collection_type?: string; materialize?: string }, relIndex: number) => {
             if (!relation.name || typeof relation.name !== 'string') {
               throw new Error(`Entité ${entityIndex + 1}, Relation ${relIndex + 1}: Le nom est requis`);
             }
             if (!relation.target || typeof relation.target !== 'string') {
               throw new Error(`Entité ${entityIndex + 1}, Relation ${relIndex + 1}: La cible est requise`);
             }
-            if (!relation.cardinality || !validCardinalities.includes(relation.cardinality)) {
-              throw new Error(`Entité ${entityIndex + 1}, Relation ${relIndex + 1}: Cardinalité invalide`);
+            if (!relation.relation || !validRelations.includes(relation.relation)) {
+              throw new Error(`Entité ${entityIndex + 1}, Relation ${relIndex + 1}: Type de relation invalide. Types valides: ${validRelations.join(', ')}`);
+            }
+            if (!relation.materialize || !validMaterializations.includes(relation.materialize)) {
+              throw new Error(`Entité ${entityIndex + 1}, Relation ${relIndex + 1}: Matérialisation invalide. Types valides: ${validMaterializations.join(', ')}`);
             }
             return relation;
           });
@@ -191,19 +198,23 @@ export const FieldsImport: React.FC<FieldsImportProps> = ({
     "class": "Entreprise",
     "aggregate_root": true,
     "fields": [
-      {"name": "id", "type": "UUID", "constraints": ["not null"]},
-      {"name": "siren", "type": "String", "constraints": ["not null"]}
+      {"name": "siren", "type": "String"},
+      {"name": "rna", "type": "String"}
     ],
     "relations": [
       {
-        "name": "etablissementIds",
+        "name": "etablissements",
         "target": "Etablissement",
-        "cardinality": "MANY",
-        "owner": true,
-        "fk_name": "entrepriseId",
+        "relation": "one-to-many",
         "collection_type": "List",
-        "id_type": "UUID"
+        "materialize": "embed"
       }
+    ]
+  },
+  {
+    "class": "Etablissement",
+    "fields": [
+      {"name": "siret", "type": "String"}
     ]
   }
 ]`}
@@ -259,7 +270,7 @@ export const FieldsImport: React.FC<FieldsImportProps> = ({
                         {entity.relations.slice(0, 2).map((relation, relIndex) => (
                           <div key={relIndex} className="text-xs text-gray-700">
                             <span className="font-medium">{relation.name}</span>
-                            <span className="text-gray-500 ml-1">→ {relation.target} ({relation.cardinality})</span>
+                            <span className="text-gray-500 ml-1">→ {relation.target} ({relation.relation})</span>
                           </div>
                         ))}
                         {entity.relations.length > 2 && (

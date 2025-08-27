@@ -13,12 +13,9 @@ interface NewEntityStructure {
   relations?: {
     name: string;
     target: string;
-    cardinality: 'ONE' | 'MANY';
-    owner: boolean;
-    fk_name: string;
-    nullable?: boolean;
+    relation: string;  // "one-to-many", "many-to-one", "one-to-one"
     collection_type?: string;
-    id_type: string;
+    materialize: string;  // "embed", "fk", etc.
   }[];
 }
 
@@ -26,12 +23,15 @@ const DEFAULT_CONFIG: StartkitConfig = {
   microserviceName: 'ms-adresse-core',
   groupId: 'fr.assia.adresse',
   version: '0.1.0-SNAPSHOT',
+  rootPackage: 'fr.assia.adresse',
   artifactId: 'ms-adresse-core',
   javaVersion: 17,
   diFramework: 'spring',
   description: 'Microservice de gestion des adresses',
   modules: {
-    coverage: true
+    coverage: true,
+    postgresProvider: false,
+    externalApiProvider: false
   },
   domain: {
     aggregates: [
@@ -50,9 +50,11 @@ const DEFAULT_CONFIG: StartkitConfig = {
   springProfiles: ['dev', 'prod'],
   serverPort: 8080,
   docker: {
-    baseImage: 'azul/openjdk:17-jdk',
-    portMapping: '8080:8080',
-    startCommand: 'java -jar app.jar'
+    appPort: 8080,
+    enableDebug: false,
+    debugPort: 5005,
+    imageName: 'ms-adresse-core:java17',
+    jarPattern: 'target/*.jar'
   }
 };
 
@@ -64,14 +66,14 @@ export const useStartkitConfig = () => {
   // État pour les entités avec la nouvelle structure
   const [parsedEntities, setParsedEntities] = useState<NewEntityStructure[]>([]);
 
-  const updateConfig = (path: string, value: any) => {
+  const updateConfig = (path: string, value: unknown) => {
     setConfig(prev => {
       const newConfig = structuredClone(prev);
       const keys = path.split('.');
-      let current: any = newConfig;
+      let current: Record<string, unknown> = newConfig as unknown as Record<string, unknown>;
       
       for (let i = 0; i < keys.length - 1; i++) {
-        current = current[keys[i]];
+        current = current[keys[i]] as Record<string, unknown>;
       }
       current[keys[keys.length - 1]] = value;
       

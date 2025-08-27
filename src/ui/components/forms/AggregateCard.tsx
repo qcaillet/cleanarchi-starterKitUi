@@ -3,8 +3,6 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { FieldsImport } from './FieldsImport';
-import { AggregateNameInput } from './AggregateNameInput';
-import { AggregateFormActions } from './AggregateFormActions';
 import { AggregateTextAreas } from './AggregateTextAreas';
 import { Trash2 } from 'lucide-react';
 import type { Aggregate, Field } from '@/domain/config';
@@ -17,7 +15,22 @@ interface AggregateCardProps {
   onAddField: (aggregateIndex: number) => void;
   onUpdateField: (aggregateIndex: number, fieldIndex: number, field: Partial<Field>) => void;
   onRemoveField: (aggregateIndex: number, fieldIndex: number) => void;
-  onImportNewEntities?: (entities: any[]) => void;
+  onImportNewEntities?: (entities: {
+    class: string;
+    aggregate_root?: boolean;
+    fields: {
+      name: string;
+      type: string;
+      constraints?: string[];
+    }[];
+    relations?: {
+      name: string;
+      target: string;
+      relation: string;
+      collection_type?: string;
+      materialize: string;
+    }[];
+  }[]) => void;
 }
 
 export const AggregateCard: React.FC<AggregateCardProps> = ({
@@ -25,9 +38,6 @@ export const AggregateCard: React.FC<AggregateCardProps> = ({
   aggregateIndex,
   onUpdateAggregate,
   onRemoveAggregate,
-  onAddField,
-  onUpdateField,
-  onRemoveField,
   onImportNewEntities
 }) => {
   const handleArrayUpdate = (field: string, value: string) => {
@@ -43,11 +53,7 @@ export const AggregateCard: React.FC<AggregateCardProps> = ({
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="flex items-center justify-between">
-          <AggregateNameInput
-            value={aggregate.name}
-            onChange={(value) => onUpdateAggregate(aggregateIndex, 'name', value)}
-          />
+        <CardTitle className="flex items-center justify-end">
           <Button
             type="button"
             variant="outline"

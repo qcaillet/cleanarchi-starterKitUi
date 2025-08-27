@@ -5,7 +5,6 @@ import { ConfigUpdater } from '../services/configUpdater';
 import { useAggregateActions } from './useAggregateActions';
 import { useFieldActions } from './useFieldActions';
 import { useProfileActions } from './useProfileActions';
-import { useDataProviderActions } from './useDataProviderActions';
 
 export const useStartkitConfig = () => {
   const [config, setConfig] = useState<StartkitConfig>(DEFAULT_CONFIG);
@@ -17,7 +16,6 @@ export const useStartkitConfig = () => {
   const aggregateActions = useAggregateActions(updateConfig);
   const fieldActions = useFieldActions(updateConfig);
   const profileActions = useProfileActions(updateConfig);
-  const dataProviderActions = useDataProviderActions(updateConfig);
 
   // Wrapper functions to maintain compatibility
   const addAggregate = useCallback(() => {
@@ -46,9 +44,6 @@ export const useStartkitConfig = () => {
     profileActions.removeSpringProfile(config.springProfiles, index);
   }, [profileActions, config.springProfiles]);
 
-  const toggleDataProvider = useCallback((provider: string) => {
-    dataProviderActions.toggleDataProvider(config.modules.dataprovider.providers, provider);
-  }, [dataProviderActions, config.modules.dataprovider.providers]);
 
   return {
     config,
@@ -58,7 +53,6 @@ export const useStartkitConfig = () => {
     addField,
     removeField,
     addSpringProfile,
-    removeSpringProfile,
-    toggleDataProvider
+    removeSpringProfile
   };
 };

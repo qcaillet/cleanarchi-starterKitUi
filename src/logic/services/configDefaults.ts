@@ -8,6 +8,7 @@ export const DEFAULT_CONFIG: StartkitConfig = {
   artifactId: 'ms-commande',
   javaVersion: 17,
   diFramework: 'spring',
+  description: 'Microservice de gestion des commandes',
   modules: {
     coverage: true,
     postgresProvider: false,
