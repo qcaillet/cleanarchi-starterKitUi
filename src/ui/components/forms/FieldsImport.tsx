@@ -26,14 +26,17 @@ interface FieldsImportProps {
   onImportFields: (fields: Field[]) => void;
   onImportNewEntities?: (entities: NewEntityStructure[]) => void;
   currentFields?: Field[];
+  entitiesJson: string;
+  onJsonChange: (json: string) => void;
 }
 
 export const FieldsImport: React.FC<FieldsImportProps> = ({ 
   onImportFields, 
   onImportNewEntities,
-  currentFields: _currentFields = [] 
+  currentFields: _currentFields = [],
+  entitiesJson,
+  onJsonChange
 }) => {
-  const [jsonInput, setJsonInput] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [parsedEntities, setParsedEntities] = useState<NewEntityStructure[] | null>(null);
   const [debounceTimer, setDebounceTimer] = useState<NodeJS.Timeout | null>(null);
@@ -136,7 +139,7 @@ export const FieldsImport: React.FC<FieldsImportProps> = ({
 
   // Valide et traite la nouvelle structure JSON avec debounce
   const handleJsonChange = (value: string) => {
-    setJsonInput(value);
+    onJsonChange(value);
     
     // Nettoie le timer précédent
     if (debounceTimer) {
@@ -198,8 +201,15 @@ export const FieldsImport: React.FC<FieldsImportProps> = ({
     "class": "Entreprise",
     "aggregate_root": true,
     "fields": [
-      {"name": "siren", "type": "String"},
-      {"name": "rna", "type": "String"}
+      { "name": "id", "type": "UUID" },
+      { "name": "siren", "type": "String" },
+      { "name": "rna", "type": "String" },
+      { "name": "siretSiegeSocial", "type": "String" },
+      { "name": "categorieEntreprise", "type": "String" },
+      { "name": "statusDiffusion", "type": "String" },
+      { "name": "economieSocialeEtSolidaire", "type": "Boolean" },
+      { "name": "dateCreation", "type": "LocalDate" },
+      { "name": "dateCessation", "type": "LocalDate" }
     ],
     "relations": [
       {
@@ -208,17 +218,84 @@ export const FieldsImport: React.FC<FieldsImportProps> = ({
         "relation": "one-to-many",
         "collection_type": "List",
         "materialize": "embed"
+      },
+      {
+        "name": "categorieJuridique",
+        "target": "CategorieJuridique",
+        "relation": "one-to-one",
+        "materialize": "embed"
+      },
+      {
+        "name": "formeJuridique",
+        "target": "FormeJuridique",
+        "relation": "one-to-one",
+        "materialize": "embed"
+      },
+      {
+        "name": "activitePrincipale",
+        "target": "ActivitePrincipale",
+        "relation": "one-to-one",
+        "materialize": "embed"
       }
     ]
   },
   {
     "class": "Etablissement",
     "fields": [
-      {"name": "siret", "type": "String"}
+      { "name": "id", "type": "UUID" },
+      { "name": "siret", "type": "String" },
+      { "name": "siegeSocial", "type": "Boolean" },
+      { "name": "etatAdministratif", "type": "String" },
+      { "name": "dateCreation", "type": "LocalDate" },
+      { "name": "dateFermeture", "type": "LocalDate" }
+    ],
+    "relations": [
+      {
+        "name": "activitePrincipale",
+        "target": "ActivitePrincipale",
+        "relation": "one-to-one",
+        "materialize": "embed"
+      },
+      {
+        "name": "adresses",
+        "target": "AdressePostale",
+        "relation": "one-to-many",
+        "collection_type": "List",
+        "materialize": "embed"
+      }
+    ]
+  },
+  {
+    "class": "AdressePostale",
+    "fields": [
+      { "name": "id", "type": "UUID" },
+      { "name": "codePostal", "type": "String" },
+      { "name": "libelleCommune", "type": "String" }
+    ]
+  },
+  {
+    "class": "CategorieJuridique",
+    "fields": [
+      { "name": "code", "type": "String" },
+      { "name": "libelle", "type": "String" }
+    ]
+  },
+  {
+    "class": "FormeJuridique",
+    "fields": [
+      { "name": "code", "type": "String" },
+      { "name": "libelle", "type": "String" }
+    ]
+  },
+  {
+    "class": "ActivitePrincipale",
+    "fields": [
+      { "name": "code", "type": "String" },
+      { "name": "libelle", "type": "String" }
     ]
   }
 ]`}
-        value={jsonInput}
+        value={entitiesJson}
         onChange={(e) => handleJsonChange(e.target.value)}
         className="min-h-[300px] font-mono text-sm"
       />

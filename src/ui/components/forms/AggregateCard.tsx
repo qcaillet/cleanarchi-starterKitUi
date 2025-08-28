@@ -31,6 +31,8 @@ interface AggregateCardProps {
       materialize: string;
     }[];
   }[]) => void;
+  entitiesJson: string;
+  onJsonChange: (json: string) => void;
 }
 
 export const AggregateCard: React.FC<AggregateCardProps> = ({
@@ -38,7 +40,9 @@ export const AggregateCard: React.FC<AggregateCardProps> = ({
   aggregateIndex,
   onUpdateAggregate,
   onRemoveAggregate,
-  onImportNewEntities
+  onImportNewEntities,
+  entitiesJson,
+  onJsonChange
 }) => {
   const handleArrayUpdate = (field: string, value: string) => {
     const arrayValue = value.split('\n').filter(item => item.trim());
@@ -74,6 +78,8 @@ export const AggregateCard: React.FC<AggregateCardProps> = ({
               onImportFields={handleImportFields} 
               onImportNewEntities={onImportNewEntities}
               currentFields={aggregate.fields}
+              entitiesJson={entitiesJson}
+              onJsonChange={onJsonChange}
             />
           </div>
         </div>

@@ -48,6 +48,10 @@ export const DomainTab: React.FC<DomainTabProps> = ({
     onUpdateConfig(`domain.aggregates.${aggregateIndex}.fields.${fieldIndex}`, updatedField);
   };
 
+  const handleJsonChange = (json: string) => {
+    onUpdateConfig('domain.entitiesJson', json);
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex justify-end items-center">
@@ -68,6 +72,8 @@ export const DomainTab: React.FC<DomainTabProps> = ({
           onUpdateField={handleUpdateField}
           onRemoveField={onRemoveField}
           onImportNewEntities={onImportNewEntities}
+          entitiesJson={config.domain.entitiesJson}
+          onJsonChange={handleJsonChange}
         />
       ))}
     </div>

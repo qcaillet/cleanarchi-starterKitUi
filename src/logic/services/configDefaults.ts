@@ -26,7 +26,8 @@ export const DEFAULT_CONFIG: StartkitConfig = {
         ],
         useCases: ['Sauvegarder', 'Modifier', 'Supprimer', 'Lire']
       }
-    ]
+    ],
+    entitiesJson: ''
   },
   springProfiles: ['dev', 'prod'],
   serverPort: 8080,

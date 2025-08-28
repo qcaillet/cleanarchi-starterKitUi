@@ -180,7 +180,7 @@ export class ProjectGeneratorService {
       link.href = url;
       
       const contentDisposition = response.headers.get('Content-Disposition');
-      let filename = `${apiRequest.mainEntityName.toLowerCase()}.zip`;
+      let filename = `${apiRequest.microserviceName.toLowerCase()}.zip`;
       
       if (contentDisposition) {
         const filenameMatch = contentDisposition.match(/filename="(.+)"/);
@@ -280,7 +280,7 @@ export class ProjectGeneratorService {
       link.href = url;
       
       const contentDisposition = response.headers.get('Content-Disposition');
-      let filename = `${mainEntity.class.toLowerCase()}-project.zip`;
+      let filename = `${apiRequest.microserviceName.toLowerCase()}.zip`;
       
       if (contentDisposition) {
         const filenameMatch = contentDisposition.match(/filename="(.+)"/);

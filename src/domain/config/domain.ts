@@ -12,6 +12,7 @@ export interface Aggregate {
 
 export interface DomainConfig {
   aggregates: Aggregate[];
+  entitiesJson: string;
 }
 
 export type JavaType = 'String' | 'UUID' | 'BigDecimal' | 'Integer' | 'Long' | 'Boolean' | 'Instant' | 'LocalDate' | 'LocalDateTime';
