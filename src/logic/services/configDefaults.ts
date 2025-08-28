@@ -24,7 +24,7 @@ export const DEFAULT_CONFIG: StartkitConfig = {
           { name: 'rue', type: 'BigDecimal', constraints: ['min:0'] },
           { name: 'complementAdresse', type: 'Instant', constraints: ['not null'] }
         ],
-        useCases: ['Sauvegarder', 'RechercherParId', 'Lister']
+        useCases: ['Sauvegarder', 'Modifier', 'Supprimer', 'Lire']
       }
     ]
   },

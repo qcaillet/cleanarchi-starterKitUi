@@ -4,6 +4,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { RotateCcw, Download, AlertCircle } from 'lucide-react';
 import { useStartkitConfig } from '@/logic/useStartkitConfig';
 import { useProjectGenerator } from '@/logic/hooks/useProjectGenerator';
+import { useElectronIntegration } from '@/hooks/useElectron';
+import type { StartkitConfig } from '@/domain/types';
 import { GeneralTab } from './components/tabs/GeneralTab';
 import { ModulesTab } from './components/tabs/ModulesTab';
 import { DomainTab } from './components/tabs/DomainTab';
@@ -13,6 +15,7 @@ const StartKitGenerator: React.FC = () => {
   const {
     config,
     updateConfig,
+    setConfigData,
     addAggregate,
     removeAggregate,
     addField,
@@ -23,6 +26,42 @@ const StartKitGenerator: React.FC = () => {
   } = useStartkitConfig();
 
   const { isGenerating, error, generateProject, clearError } = useProjectGenerator();
+  
+  const { isElectron, saveConfig, loadConfig } = useElectronIntegration({
+    onNewProject: () => {
+      resetConfig();
+    },
+    onSaveConfig: () => handleSaveConfig(),
+    onOpenConfig: () => handleLoadConfig(),
+    onExportProject: () => handleGenerateProject()
+  });
+  const handleSaveConfig = async () => {
+    if (!isElectron) return;
+    
+    try {
+      const result = await saveConfig(config);
+      if (!result.success && !result.cancelled) {
+        console.error('Erreur sauvegarde:', result.error);
+      }
+    } catch (error) {
+      console.error('Erreur lors de la sauvegarde:', error);
+    }
+  };
+
+  const handleLoadConfig = async () => {
+    if (!isElectron) return;
+    
+    try {
+      const result = await loadConfig();
+      if (result.success && result.data) {
+        setConfigData(result.data as StartkitConfig);
+      } else if (!result.cancelled) {
+        console.error('Erreur chargement:', result.error);
+      }
+    } catch (error) {
+      console.error('Erreur lors du chargement:', error);
+    }
+  };
 
 
   const handleGenerateProject = async () => {
@@ -30,7 +69,6 @@ const StartKitGenerator: React.FC = () => {
       clearError();
       await generateProject(config, parsedEntities);
     } catch (err) {
-      // L'erreur est déjà gérée dans le hook
       console.error('Erreur lors de la génération:', err);
     }
   };
@@ -108,7 +146,7 @@ const StartKitGenerator: React.FC = () => {
             ) : (
               <>
                 <Download className="w-4 h-4" />
-                Télécharger
+                {isElectron ? 'Télécharger' : 'Télécharger'}
               </>
             )}
           </Button>

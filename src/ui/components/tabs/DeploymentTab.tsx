@@ -14,14 +14,13 @@ export const DeploymentTab: React.FC<DeploymentTabProps> = ({
   config,
   onUpdateConfig
 }) => {
-  // Valeurs par défaut si les propriétés n'existent pas encore
   const dockerConfig = {
-    appPort: 8080,
-    enableDebug: false,
-    debugPort: 5005,
-    imageName: `mon-app:java${config.javaVersion}`,
-    jarPattern: 'target/*.jar',
-    ...config.docker
+    ...config.docker,
+    appPort: config.docker?.appPort || 8080,
+    enableDebug: config.docker?.enableDebug || false,
+    debugPort: config.docker?.debugPort || 5005,
+    imageName: config.docker?.imageName || `mon-app:java${config.javaVersion}`,
+    jarPattern: config.docker?.jarPattern || 'target/*.jar'
   };
 
   return (

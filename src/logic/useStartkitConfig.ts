@@ -43,7 +43,7 @@ const DEFAULT_CONFIG: StartkitConfig = {
           { name: 'ville', type: 'String', constraints: ['not null'] },
           { name: 'codePostal', type: 'String', constraints: ['not null'] }
         ],
-        useCases: ['Sauvegarder', 'Modifier', 'Supprimer']
+        useCases: ['Sauvegarder', 'Modifier', 'Supprimer', 'Lire']
       }
     ]
   },
@@ -142,21 +142,23 @@ export const useStartkitConfig = () => {
 
 
   const resetConfig = () => {
-    console.log('🔄 Réinitialisation de la configuration...');
     const cleanConfig = structuredClone(DEFAULT_CONFIG);
-    console.log('✅ Nouvelle configuration:', cleanConfig);
     setConfig(cleanConfig);
-    setParsedEntities([]); // Reset aussi les entités parsées
+    setParsedEntities([]);
   };
 
   const updateParsedEntities = (entities: NewEntityStructure[]) => {
     setParsedEntities(entities);
-    console.log('🎯 Nouvelles entités parsées:', entities);
+  };
+
+  const setConfigData = (newConfig: StartkitConfig) => {
+    setConfig(newConfig);
   };
 
   return {
     config,
     updateConfig,
+    setConfigData,
     addAggregate,
     removeAggregate,
     addField,

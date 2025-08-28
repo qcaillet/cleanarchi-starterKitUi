@@ -44,14 +44,12 @@ export const useProjectGenerator = (): UseProjectGeneratorReturn => {
 
       // Si on a des entités parsées, utiliser la nouvelle structure
       if (parsedEntities && parsedEntities.length > 0) {
-        console.log('🎯 Utilisation de la nouvelle structure d\'entités');
         await projectGeneratorService.generateProjectWithNewStructure(config, parsedEntities);
       } else {
         // Sinon, utiliser l'ancienne méthode avec validation des agrégats
         if (!config.domain.aggregates || config.domain.aggregates.length === 0) {
           throw new Error('Au moins un agrégat est requis pour générer le projet');
         }
-        console.log('📋 Utilisation de la structure classique');
         await projectGeneratorService.generateAndDownloadProject(config);
       }
       

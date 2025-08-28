@@ -65,13 +65,11 @@ export const FieldRow: React.FC<FieldRowProps> = ({
     if (checked) {
       updatedConstraints = [...field.constraints, constraint];
       
-      // Si on sélectionne primary key, on retire not null et unique (redondants)
       if (constraint === 'primary key') {
         updatedConstraints = updatedConstraints.filter(c => 
           c !== 'not null' && c !== 'unique'
         );
       }
-      // Si on sélectionne foreign key, on retire primary key
       else if (constraint === 'foreign key') {
         updatedConstraints = updatedConstraints.filter(c => c !== 'primary key');
       }

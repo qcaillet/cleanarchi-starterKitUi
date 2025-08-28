@@ -31,7 +31,7 @@ export const ModulesTab: React.FC<ModulesTabProps> = ({
       id: 'externalApiProvider',
       key: 'modules.externalApiProvider',
       title: 'Provider API externe',
-      description: 'Client REST configuré avec OpenFeign ou RestTemplate',
+      description: 'Configuration pour accès aux APIs externes',
       icon: Globe,
       checked: config.modules.externalApiProvider,
       color: 'bg-purple-50 border-purple-200 text-purple-800'

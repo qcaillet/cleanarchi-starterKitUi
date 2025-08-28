@@ -1,6 +1,5 @@
 import React from 'react';
 import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { X } from 'lucide-react';
@@ -14,12 +13,12 @@ interface AggregateTextAreasProps {
 const availableUseCases = [
   'Sauvegarder',
   'Modifier',
-  'Supprimer'
+  'Supprimer',
+  'Lire'
 ];
 
 export const AggregateTextAreas: React.FC<AggregateTextAreasProps> = ({
   useCases,
-  aggregateName,
   onUpdateArray
 }) => {
   const [selectValue, setSelectValue] = React.useState<string>('');

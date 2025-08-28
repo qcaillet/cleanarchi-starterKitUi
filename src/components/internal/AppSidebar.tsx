@@ -1,4 +1,4 @@
-import { Settings, Code, Server } from "lucide-react";
+import {Code } from "lucide-react";
 import { NavLink } from "react-router-dom";
 
 import {
@@ -15,11 +15,6 @@ import {
 
 const generatorItems = [
   { title: "Clean architecture", url: "/generator", icon: Code },
-];
-
-const managerItems = [
-  { title: "Composants applicatifs", url: "/microservices", icon: Server },
-  { title: "Configuration", url: "/config", icon: Settings },
 ];
 
 export function AppSidebar() {
@@ -53,23 +48,6 @@ export function AppSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
 
-        <SidebarGroup>
-          <SidebarGroupLabel>Manager de Services</SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {managerItems.map((item) => (
-                <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild>
-                    <NavLink to={item.url} end className={getNavCls}>
-                      <item.icon className="mr-2 h-4 w-4" />
-                      {!isCollapsed && <span>{item.title}</span>}
-                    </NavLink>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
       </SidebarContent>
     </Sidebar>
   );

@@ -31,7 +31,7 @@ interface FieldsImportProps {
 export const FieldsImport: React.FC<FieldsImportProps> = ({ 
   onImportFields, 
   onImportNewEntities,
-  currentFields = [] 
+  currentFields: _currentFields = [] 
 }) => {
   const [jsonInput, setJsonInput] = useState('');
   const [error, setError] = useState<string | null>(null);
